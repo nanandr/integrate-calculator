@@ -1,29 +1,33 @@
-from sympy import Symbol, integrate
+from sympy import Symbol, integrate, sympify, expand
 
-def coeff_exponent (i, x):
-    a = i.as_coeff_exponent(x)[0]
-    n = i.as_coeff_exponent(x)[1]
+def coeff_exponent (exp, x): #get coefficient and exponent from all terms
+    exp = expand(exp)
+    print(f"f(x) = {exp}") # print expanded term
+    print()
+    terms = exp.as_ordered_terms()
+    for term in terms:
+        print("Term:")
+        print(f"a*x**n = {term}")
+        a, n = term.as_coeff_exponent(x) # coefficient & exponent
+        
+        print(f"a = {a}")
+        print(f"n = {n}")
+        print()
 
-    print(f"a*x**n = {i}")
-    print(f"a = {a}")
-    print(f"n = {n}")
-    print()
-    print(f"a = a / n + 1 = {a / (n + 1)}")
-    print(f"n = n + 1 = {n + 1}")
-    print()
+        print("Integrate:")
+        print(f"a / (n + 1) = {a} / ({n} + 1) = {a / (n + 1)}") # integrate coefficient
+        print(f"n + 1 = {n} + 1 = {n + 1}") # integrate exponent
+        print(f"{term} = {a / (n + 1)}*x**{n+1}") # print integrated term 
+        print()
+        print()
 
 def main ():
-    #sympy.sympify("6x**2-2x+7")
     x = Symbol('x')
     
-    axn = 6 * x ** 2
-    coeff_exponent(axn, x)
-
-    bx = - 2 * x
-    coeff_exponent(bx, x)
-
-    c = 7
-
-    print(integrate(axn + bx + c, x))
+    while True:
+        calculate = input("f(x) = ")
+        coeff_exponent(sympify(calculate), x)
+        print(integrate(sympify(calculate), x))
+        print()
 
 main()
