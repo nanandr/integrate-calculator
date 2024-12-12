@@ -14,8 +14,10 @@ def split_to_terms (expression, x):
 def process_term (term, x):
     a, n = term.as_coeff_exponent(x)
     print(f"Term: {term}")
-    print(f"Coefficient (a) = {a}")
-    print(f"Exponent (n) = {n}")
+    print("Coefficient:")
+    print(f"a = {a}")
+    print("Exponent:")
+    print(f"n = {n}")
 
     integral_exponent = n + 1
     integral_coeff = a / integral_exponent
@@ -23,7 +25,7 @@ def process_term (term, x):
     print("Integration:")
     print(f"a / (n + 1) = {a} / ({n} + 1) = {integral_coeff}")
     print(f"n + 1 = {n} + 1 = {integral_exponent}")
-    print(f"Integrated Term: {integral_coeff} * x * {integral_exponent}\n")
+    print(f"Integrated Term: {integral_coeff}*x**{integral_exponent}\n")
 
 def integrate_expression (expression, x):
     expanded = expand_expression(expression)
