@@ -1,14 +1,18 @@
 from sympy import Symbol, integrate, sympify, expand
 
-def coeff_exponent (exp, x): #get coefficient and exponent from all terms
-    exp = expand(exp)
-    print(f"f(x) = {exp}") # print expanded term
+def split (expression, x):
+    expression = expand(expression)
+    print(f"f(x) = {expression}") # print expanded terms
     print()
-    terms = exp.as_ordered_terms()
+    return expression.as_ordered_terms()
+
+def coeff_exponent (exp, x): # get coefficient and exponent from terms
+    terms = split(exp, x)
+    print(terms) # print terms as list
     for term in terms:
         print("Term:")
         print(f"a*x**n = {term}")
-        a, n = term.as_coeff_exponent(x) # coefficient & exponent
+        a, n = term.as_coeff_exponent(x) # get coefficient & exponent from term
         
         print(f"a = {a}")
         print(f"n = {n}")
