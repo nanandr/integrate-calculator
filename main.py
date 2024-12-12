@@ -6,13 +6,12 @@ def expand_expression (expression):
     print(f"f(x) = {expression}\n") # print expanded terms
     return expanded
 
-def split_to_terms (expression, x):
-    terms = expression.as_ordered_terms()
-    print(f"Terms: {terms}\n")
-    return terms
+def coeff_exponent (term, x):
+    a, n = term.as_coeff_exponent(x)
+    return [a, n]
 
 def process_term (term, x):
-    a, n = term.as_coeff_exponent(x)
+    a, n = coeff_exponent(term, x)
     print(f"Term: {term}")
     print("Coefficient:")
     print(f"a = {a}")
@@ -29,7 +28,9 @@ def process_term (term, x):
 
 def integrate_expression (expression, x):
     expanded = expand_expression(expression)
-    terms = split_to_terms(expanded, x)
+    terms = expanded.as_ordered_terms()
+    print(f"Terms: {terms}\n")
+    
     for term in terms:
         process_term(term, x)
     
@@ -49,10 +50,46 @@ def main () -> None:
 
         if user_input.lower() == "exit":
             break
+
+        limits = []
+        print("Limit:")
+        print("Leave Blank if it's indefinite integral\n")
+        print("Lower Limit:")
+        limits.append(input("l = "))
+        print("Upper Limit:")
+        limits.append(input("u = "))
+        print()
         
         try:
             expression = sympify(user_input)
-            integrate_expression(expression, x)
+            f = integrate_expression(expression, x)
+            if limits[0] != "" and limits[1] != "":
+                lower_limit = sympify(limits[0])
+                upper_limit = sympify(limits[1])
+
+                # Calculate the definite integral directly
+                definite_integral = integrate(expression, (x, lower_limit, upper_limit))
+
+                # Substitute limits for manual verification
+                fl = f.subs(x, lower_limit)
+                fu = f.subs(x, upper_limit)
+
+                # Display results
+                print("Substitute Limits:")
+                terms = f.as_ordered_terms()
+                for limit, label in zip([lower_limit, upper_limit], ["Lower Limit", "Upper Limit"]):
+                    print(f"\n{label} ({limit}):")
+                    for term in terms:
+                        a, n = coeff_exponent(term, x)
+                        substituted = a * (limit ** n)
+                        print(f"{term} -> {a}*{limit}**{n} = {substituted}")
+                    result = f.subs(x, limit)
+                    print(f"F({limit}) = {result}")
+
+                # Display results
+                print(f"\nF({upper_limit}) - F({lower_limit}) = {fu} - {fl} = {fu - fl}")
+                print("\nDefinite Integral Result:")
+                print(f"∫[{lower_limit}, {upper_limit}] f(x) dx = {definite_integral}\n")
         except Exception as e:
             print(f"Error: {e}\n Please enter a valid mathematical expression")
 
