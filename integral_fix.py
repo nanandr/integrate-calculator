@@ -1,77 +1,50 @@
-#integral(a, b, x) Integral \(\int_{a}^{b} x \,dx\)
+# integral_fix.py
 
-#type of questions
-
-#ax^n + bx + c
-#(ax + b)^n
-
-#(qx)(bx + c)^n
-#(px^m)(bx + c)^n
-#(qx)(ax^m + c)^n
-
-#(qx + r)(ax^m + bx + c)^n
-#(qx)(sqrt(ax^2 + c))
-
-#VARIABLES
-# axn   pxm     a*x**n      p*x**m
-# bx    px      b*x**2      p*x**2
-# c     r       cx          rx
-
-#INTEGRAL FORM
-# (a/(n+1))*x**(n+1)
-# (b/2)*x**2
-# c*x
-
-def axn (a: int, n: int) -> dict:
+# Fungsi untuk menghitung integral dari ax^n
+def axn(a: int, n: int) -> dict:
     n += 1
-    if (a % n == 0):
+    if a % n == 0:
         a //= n
     else:
         a /= n
     return {
         "a": a,
-        # "x": "x",
         "n": n,
-        # "res": f"{a}x^{n}"
     }
 
-def bx (b: int) -> str:
-    if (b % 2 == 0):
+# Fungsi untuk menghitung integral dari bx (b*x^2)
+def bx(b: int) -> dict:
+    if b % 2 == 0:
         b //= 2
     else:
         b /= 2
     return {
         "b": b,
         "n": 2,
-        # "x": "x",
-        # "res": f"{b}x"
     }
 
-def c (c: int) -> str:
+# Fungsi untuk menghitung integral dari konstanta c
+def c(c: int) -> dict:
     return {
         "c": c,
-        # "x": "x",
-        # "res": f"{c}x"
     }
 
-# def join (arr: list) -> str:
-#     res = ""
-#     for i, val in enumerate(arr):
-#         if (i == 0):
-#             res += f"{val} "
-#         else:
-#             if (val[0] == "-"):
-#                 val = val[1:]
-#                 res += "- "
-#             else:
-#                 res += "+ "
-#             res += f"{val} "
-#     return res
+# Fungsi untuk memproses ekspresi yang lebih kompleks
+def integrate_expression(fx, x):
+    result = []
+    
+    # Proses ax^n
+    if 'x**' in fx:
+        coeff, exp = fx.split('x**')
+        result.append(axn(int(coeff), int(exp)))
 
-def main () -> None:
-    #6x**2 - 2x + 7
-    print(axn(6, 2))
-    print(bx(-2))
-    print(c(7))
+    # Proses bx
+    elif 'x' in fx:
+        coeff = fx.split('x')[0]
+        result.append(bx(int(coeff)))
+    
+    # Proses konstanta
+    else:
+        result.append(c(int(fx)))
 
-main()
+    return result
