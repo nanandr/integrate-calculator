@@ -5,6 +5,8 @@ import os
 import sys
 import tkinter as tk
 
+from tkinter import scrolledtext
+
 from sympy import Symbol, integrate, sympify
 from integral import integrate_steps
 
@@ -42,7 +44,8 @@ def gui ():
             terms.append(f"a -> a/(n+1) = {coeff}/({exponent}+1) = {integral_coeff}")
             terms.append(f"n -> n+1 = {exponent}+1 = {integral_exponent}\n")
 
-        canvas.itemconfig(steps, text=writeLines([
+        steps.configure(state='normal')
+        steps.insert(tk.INSERT,writeLines([
             f"f(x) = {expression}\n",
             "Expanded Expression:",
             f"f(x) = {res["expanded"]}\n",
@@ -50,13 +53,12 @@ def gui ():
             writeLines(terms),
             "Integrated Expression:",
             f"F(x) = {integrated_expression}"
-        ]))
+        ])) 
 
         if lower_limit_val.strip() != "" and upper_limit_val.strip() != "":
             integrated_expression = str(integrate(expression, (x, sympify(lower_limit_val), sympify(upper_limit_val))))
         
         canvas.itemconfig(answer, text=integrated_expression)
-        
         
     window = tk.Tk()
     window.geometry("600x800")
@@ -135,14 +137,25 @@ def gui ():
 
     canvas.create_image(304, 559, image=image_6)
 
-    steps = canvas.create_text(
-        70,
-        380,
-        anchor="nw",
-        text="",
-        fill="#000000",
-        font=("Inter", 16 * -1)
-    )
+    # steps = canvas.create_text(
+    #     70,
+    #     380,
+    #     anchor="nw",
+    #     text="",
+    #     fill="#000000",
+    #     font=("Inter", 16 * -1)
+    # )
+
+    steps = scrolledtext.ScrolledText(window, 
+                            width = 54,  
+                            height = 23,
+                            font = ("Inter", 16 * -1))
+  
+    steps.grid(column = 0, pady = 360, padx = 54) 
+    
+    steps.insert(tk.INSERT,"") 
+
+    steps.configure(state='disabled')
 
     submit_image = tk.PhotoImage(file=load_asset("7.png"))
 
