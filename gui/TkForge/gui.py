@@ -25,19 +25,37 @@ def gui ():
 
         expression = sympify(user_input_val)
 
+        integrated_expression = f"{str((integrate(expression, x)))} + c"
+
         res = integrate_steps(expression, x)
+        
+        terms = []
+
+        for term in res["terms"]:
+            coeff = term["original"][0]
+            exponent = term["original"][1]
+
+            integral_coeff = term["integral"][0]
+            integral_exponent = term["integral"][1]
+
+            terms.append(f"{coeff}*x**{exponent} -> {integral_coeff}*x**{integral_exponent}")
+            terms.append(f"a -> a/(n+1) = {coeff}/({exponent}+1) = {integral_coeff}")
+            terms.append(f"n -> n+1 = {exponent}+1 = {integral_exponent}\n")
+
         canvas.itemconfig(steps, text=writeLines([
-            "f(x) = ",
-            "Expanded:"
-            
+            f"f(x) = {expression}\n",
+            "Expanded Expression:",
+            f"f(x) = {res["expanded"]}\n",
+            "Integrate Each Terms:\n",
+            writeLines(terms),
+            "Integrated Expression:",
+            f"F(x) = {integrated_expression}"
         ]))
 
         if lower_limit_val.strip() != "" and upper_limit_val.strip() != "":
-            f = str(integrate(expression, (x, sympify(lower_limit_val), sympify(upper_limit_val))))
-        else:
-            f = str(integrate(expression, x))
-            f += " + c"
-        canvas.itemconfig(answer, text=str(f))
+            integrated_expression = str(integrate(expression, (x, sympify(lower_limit_val), sympify(upper_limit_val))))
+        
+        canvas.itemconfig(answer, text=integrated_expression)
         
         
     window = tk.Tk()
