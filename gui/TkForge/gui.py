@@ -30,12 +30,45 @@ def gui ():
         steps.delete("1.0","end")
         steps.configure(state='disabled')
 
-    def calculate ():
+    def calculate_definite_integral (expression, res):
         x = Symbol('x')
-        user_input_val = user_input.get("1.0", "end-1c")
+        integrated_expression = integrate(expression, x)
+
         lower_limit_val = lower_limit.get()
         upper_limit_val = upper_limit.get()
 
+        if lower_limit_val.strip() != "" and upper_limit_val.strip() != "":
+            a = int(lower_limit_val)
+            b = int(upper_limit_val)
+
+            limit_integral = [integrate_subs(integrated_expression, x, a), integrate_subs(integrated_expression, x, b)]
+
+            definite_integral = str(integrate(expression, (x, sympify(lower_limit_val), sympify(upper_limit_val))))
+
+            steps.insert(tk.INSERT, writeLines([
+                "Substitute each limit to function:\n",
+                
+                f"Upper Limit = {b}",
+                f"{writeLines(format_subs(res['terms'], b))}",
+                "--------------- +",
+                f"F({b}) = {limit_integral[1]}\n",
+
+                f"Lower Limit = {a}",
+                f"{writeLines(format_subs(res['terms'], a))}",
+                "--------------- +",
+                f"F({a}) = {limit_integral[0]}\n",
+
+                "Definite Integral:",
+                f"F({b}) - F({a}) = {limit_integral[1]} - {limit_integral[0]} = {definite_integral}"
+            ]))
+            
+            integrated_expression = definite_integral
+            canvas.itemconfig(answer, text=integrated_expression)
+
+    def calculate_integral ():
+        x = Symbol('x')
+        user_input_val = user_input.get("1.0", "end-1c")
+        
         expression = sympify(user_input_val)
 
         integrated_expression = integrate(expression, x)
@@ -56,36 +89,13 @@ def gui ():
             f"F(x) = {str(integrated_expression)} + c\n\n"
         ])) 
 
-        if lower_limit_val.strip() != "" and upper_limit_val.strip() != "":
-            a = int(lower_limit_val)
-            b = int(upper_limit_val)
+        canvas.itemconfig(answer, text=f"{integrated_expression} + c")
 
-            limit_integral = [integrate_subs(integrated_expression, x, a), integrate_subs(integrated_expression, x, b)]
-
-            definite_integral = str(integrate(expression, (x, sympify(lower_limit_val), sympify(upper_limit_val))))
-
-            steps.insert(tk.INSERT, writeLines([
-                "Substitute each limit to function:\n",
-                
-                f"Upper Limit = {b}",
-                f"{writeLines(format_subs(res['terms'], b))}",
-                f"F({b}) = {limit_integral[1]}\n",
-
-                f"Lower Limit = {a}",
-                f"{writeLines(format_subs(res['terms'], a))}",
-                f"F({a}) = {limit_integral[0]}\n",
-                
-                "Definite Integral:",
-                f"F({b}) - F({a}) = {limit_integral[1]} - {limit_integral[0]} = {definite_integral}"
-            ]))
-            
-            integrated_expression = definite_integral
+        calculate_definite_integral(expression, res)
 
         steps.configure(state='disabled')
 
-        canvas.itemconfig(answer, text=integrated_expression)
 
-        
     window = tk.Tk()
     window.geometry("600x800")
     window.configure(bg="#ffffff")
@@ -180,7 +190,7 @@ def gui ():
         relief="flat",
         borderwidth=0,
         highlightthickness=0,
-        command=calculate
+        command=calculate_integral
     )
 
     submit.place(x=373, y=209, width=180, height=43)
