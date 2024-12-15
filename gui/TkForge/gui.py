@@ -30,31 +30,12 @@ def gui ():
         steps.delete("1.0","end")
         steps.configure(state='disabled')
 
-    def calculate ():
+    def calculate_definite_integral (expression, res):
         x = Symbol('x')
-        user_input_val = user_input.get("1.0", "end-1c")
-        lower_limit_val = lower_limit.get()
-        upper_limit_val = upper_limit.get()
-
-        expression = sympify(user_input_val)
-
         integrated_expression = integrate(expression, x)
 
-        res = integrate_steps(expression, x)
-        
-        terms = format_terms(res["terms"])
-
-        steps.configure(state='normal')
-        steps.delete("1.0","end")
-        steps.insert(tk.INSERT,writeLines([
-            f"f(x) = {expression}\n",
-            "Expanded Expression:",
-            f"f(x) = {res["expanded"]}\n",
-            "Integrate Each Terms:\n",
-            writeLines(terms),
-            "Integrated Expression:",
-            f"F(x) = {str(integrated_expression)} + c\n\n"
-        ])) 
+        lower_limit_val = lower_limit.get()
+        upper_limit_val = upper_limit.get()
 
         if lower_limit_val.strip() != "" and upper_limit_val.strip() != "":
             a = int(lower_limit_val)
@@ -82,12 +63,39 @@ def gui ():
             ]))
             
             integrated_expression = definite_integral
+            canvas.itemconfig(answer, text=integrated_expression)
+
+    def calculate_integral ():
+        x = Symbol('x')
+        user_input_val = user_input.get("1.0", "end-1c")
+        
+        expression = sympify(user_input_val)
+
+        integrated_expression = integrate(expression, x)
+
+        res = integrate_steps(expression, x)
+        
+        terms = format_terms(res["terms"])
+
+        steps.configure(state='normal')
+        steps.delete("1.0","end")
+        steps.insert(tk.INSERT,writeLines([
+            f"f(x) = {expression}\n",
+            "Expanded Expression:",
+            f"f(x) = {res["expanded"]}\n",
+            "Integrate Each Terms:\n",
+            writeLines(terms),
+            "Integrated Expression:",
+            f"F(x) = {str(integrated_expression)} + c\n\n"
+        ])) 
+
+        canvas.itemconfig(answer, text=f"{integrated_expression} + c")
+
+        calculate_definite_integral(expression, res)
 
         steps.configure(state='disabled')
 
-        canvas.itemconfig(answer, text=integrated_expression)
 
-        
     window = tk.Tk()
     window.geometry("600x800")
     window.configure(bg="#ffffff")
@@ -182,7 +190,7 @@ def gui ():
         relief="flat",
         borderwidth=0,
         highlightthickness=0,
-        command=calculate
+        command=calculate_integral
     )
 
     submit.place(x=373, y=209, width=180, height=43)
