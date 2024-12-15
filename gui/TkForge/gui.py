@@ -8,7 +8,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 
 from sympy import Symbol, integrate, sympify
-from integral import integrate_steps
+from integral import integrate_steps, integrate_subs, format_terms, format_subs
 
 def writeLines (lines: list) -> str:
     return "\n".join(lines)
@@ -19,6 +19,17 @@ def gui ():
         assets = os.path.join(base, "assets")
         return os.path.join(assets, path)
 
+    def resetFields ():
+        user_input.delete("1.0","end")
+        lower_limit.delete(0,tk.END)
+        upper_limit.delete(0,tk.END)
+        
+        canvas.itemconfig(answer, text="")
+
+        steps.configure(state='normal')
+        steps.delete("1.0","end")
+        steps.configure(state='disabled')
+
     def calculate ():
         x = Symbol('x')
         user_input_val = user_input.get("1.0", "end-1c")
@@ -27,24 +38,14 @@ def gui ():
 
         expression = sympify(user_input_val)
 
-        integrated_expression = f"{str((integrate(expression, x)))} + c"
+        integrated_expression = integrate(expression, x)
 
         res = integrate_steps(expression, x)
         
-        terms = []
-
-        for term in res["terms"]:
-            coeff = term["original"][0]
-            exponent = term["original"][1]
-
-            integral_coeff = term["integral"][0]
-            integral_exponent = term["integral"][1]
-
-            terms.append(f"{coeff}*x**{exponent} -> {integral_coeff}*x**{integral_exponent}")
-            terms.append(f"a -> a/(n+1) = {coeff}/({exponent}+1) = {integral_coeff}")
-            terms.append(f"n -> n+1 = {exponent}+1 = {integral_exponent}\n")
+        terms = format_terms(res["terms"])
 
         steps.configure(state='normal')
+        steps.delete("1.0","end")
         steps.insert(tk.INSERT,writeLines([
             f"f(x) = {expression}\n",
             "Expanded Expression:",
@@ -52,13 +53,38 @@ def gui ():
             "Integrate Each Terms:\n",
             writeLines(terms),
             "Integrated Expression:",
-            f"F(x) = {integrated_expression}"
+            f"F(x) = {str(integrated_expression)} + c\n\n"
         ])) 
 
         if lower_limit_val.strip() != "" and upper_limit_val.strip() != "":
-            integrated_expression = str(integrate(expression, (x, sympify(lower_limit_val), sympify(upper_limit_val))))
-        
+            a = int(lower_limit_val)
+            b = int(upper_limit_val)
+
+            limit_integral = [integrate_subs(integrated_expression, x, a), integrate_subs(integrated_expression, x, b)]
+
+            definite_integral = str(integrate(expression, (x, sympify(lower_limit_val), sympify(upper_limit_val))))
+
+            steps.insert(tk.INSERT, writeLines([
+                "Substitute each limit to function:\n",
+                
+                f"Upper Limit = {b}",
+                f"{writeLines(format_subs(res['terms'], b))}",
+                f"F({b}) = {limit_integral[1]}\n",
+
+                f"Lower Limit = {a}",
+                f"{writeLines(format_subs(res['terms'], a))}",
+                f"F({a}) = {limit_integral[0]}\n",
+                
+                "Definite Integral:",
+                f"F({b}) - F({a}) = {limit_integral[1]} - {limit_integral[0]} = {definite_integral}"
+            ]))
+            
+            integrated_expression = definite_integral
+
+        steps.configure(state='disabled')
+
         canvas.itemconfig(answer, text=integrated_expression)
+
         
     window = tk.Tk()
     window.geometry("600x800")
@@ -137,25 +163,15 @@ def gui ():
 
     canvas.create_image(304, 559, image=image_6)
 
-    # steps = canvas.create_text(
-    #     70,
-    #     380,
-    #     anchor="nw",
-    #     text="",
-    #     fill="#000000",
-    #     font=("Inter", 16 * -1)
-    # )
-
     steps = scrolledtext.ScrolledText(window, 
                             width = 54,  
                             height = 23,
                             font = ("Inter", 16 * -1))
   
     steps.grid(column = 0, pady = 360, padx = 54) 
-    
     steps.insert(tk.INSERT,"") 
-
     steps.configure(state='disabled')
+
 
     submit_image = tk.PhotoImage(file=load_asset("7.png"))
 
@@ -168,6 +184,18 @@ def gui ():
     )
 
     submit.place(x=373, y=209, width=180, height=43)
+
+    reset_image = tk.PhotoImage(file=load_asset("9.png"))
+
+    reset = tk.Button(
+        image=reset_image,
+        relief="flat",
+        borderwidth=0,
+        highlightthickness=0,
+        command=resetFields
+    )
+
+    reset.place(x=180, y=209, width=180, height=43)
 
     window.resizable(False, False)
     window.mainloop()
