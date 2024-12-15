@@ -69,12 +69,14 @@ def gui ():
                 
                 f"Upper Limit = {b}",
                 f"{writeLines(format_subs(res['terms'], b))}",
+                "--------------- +",
                 f"F({b}) = {limit_integral[1]}\n",
 
                 f"Lower Limit = {a}",
                 f"{writeLines(format_subs(res['terms'], a))}",
+                "--------------- +",
                 f"F({a}) = {limit_integral[0]}\n",
-                
+
                 "Definite Integral:",
                 f"F({b}) - F({a}) = {limit_integral[1]} - {limit_integral[0]} = {definite_integral}"
             ]))
